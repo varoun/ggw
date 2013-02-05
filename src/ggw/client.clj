@@ -14,13 +14,6 @@
                 :port g-port
                 :frame (string :utf-8 :delimiters ["\n"])})))
 
-(defn send-metric-to-graphite 
-  [host port metric-string]
-  (with-open [socket (Socket. host port)
-              out-str (.getOutputStream socket)]
-    (binding [*out* (PrintWriter. out-str)]
-      (println metric-string))))
-
 
 (defn read-metric-from-db 
   [redis-db]
@@ -31,5 +24,6 @@
   [redis-db g-host g-port]
   (let [ch (make-graphite-channel g-host g-port)]
     (loop [metric (read-metric-from-db redis-db)]
-      (enqueue ch metric)
-      (recur (read-metric-from-db redis-db)))))
+      (when (not (closed? ch))
+        (enqueue ch metric)
+        (recur (read-metric-from-db redis-db))))))
