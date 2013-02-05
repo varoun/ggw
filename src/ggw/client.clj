@@ -14,16 +14,11 @@
 
 (defn read-metric-from-db 
   [redis-db]
-  (redis/lpop redis-db "metric"))
+  (second (redis/brpop redis-db ["metric"] 0)))
 
 
 (defn get-and-send-metric 
   [redis-db g-host g-port]
   (loop [metric (read-metric-from-db redis-db)]
-    (if metric
-      (do
-        (send-metric-to-graphite g-host g-port metric)
-        (recur (read-metric-from-db redis-db)))
-      (do
-        (Thread/sleep 5)
-        (recur (read-metric-from-db redis-db))))))
+    (send-metric-to-graphite g-host g-port metric)
+    (recur (read-metric-from-db redis-db))))
