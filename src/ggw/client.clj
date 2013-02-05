@@ -2,7 +2,17 @@
   (import [java.net Socket]
           [java.io PrintWriter])
   (:require [clj-redis.client :as redis])
-  (:use [ggw.server]))
+  (:use [lamina.core]
+        [aleph.tcp] 
+        [gloss.core]
+        [ggw.server]))
+
+(defn make-graphite-channel 
+  [g-host g-port]
+  (wait-for-result
+   (tcp-client {:host g-host 
+                :port g-port
+                :frame (string :utf-8 :delimiters ["\n"])})))
 
 (defn send-metric-to-graphite 
   [host port metric-string]
@@ -19,6 +29,7 @@
 
 (defn get-and-send-metric 
   [redis-db g-host g-port]
-  (loop [metric (read-metric-from-db redis-db)]
-    (send-metric-to-graphite g-host g-port metric)
-    (recur (read-metric-from-db redis-db))))
+  (let [ch (make-graphite-channel g-host g-port)]
+    (loop [metric (read-metric-from-db redis-db)]
+      (enqueue ch metric)
+      (recur (read-metric-from-db redis-db)))))

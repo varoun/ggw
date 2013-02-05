@@ -6,5 +6,6 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [clj-redis "0.0.12"]
                  [ring "1.1.8"]
-                 [compojure "1.1.5"]])
+                 [compojure "1.1.5"]
+                 [aleph "0.3.0-beta7"]])
 
