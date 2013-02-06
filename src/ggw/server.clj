@@ -1,7 +1,8 @@
 (ns ggw.server
   (:use compojure.core
         [ring.adapter.jetty :only (run-jetty)]
-        [ring.middleware.params :only (wrap-params)])
+        [ring.middleware.params :only (wrap-params)]
+        [clojure.tools.logging :only (info error)])
   (:require [compojure.route :as route]
             [clj-redis.client :as redis]
             [clojure.string :as string]))
@@ -22,10 +23,13 @@
   [metrics-map]
   (try
     (do
+      (info metrics-map)
       (write-metrics metrics-map)
       {:body "Done"})
     (catch redis.clients.jedis.exceptions.JedisConnectionException e
-      {:body "Connection error!"})))
+      (do
+        (error "Writing to Redis failed - not running?")
+        {:body "Connection error!"}))))
 
 
 ;;; Routes
