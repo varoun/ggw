@@ -1,13 +1,6 @@
 (ns ggw.health
   (:require [clj-redis.client :as redis])
-  (:use [ggw.core]
-        [ggw.redis]))
-
-(defn redis-up? []
-  (try
-    (redis/ping db)
-    (catch redis.clients.jedis.exceptions.JedisConnectionException e
-      false)))
+  (:use [ggw.core]))
 
 (defn client-thread-running? []
   (try
