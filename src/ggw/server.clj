@@ -25,11 +25,11 @@
     (do
       (info metrics-map)
       (write-metrics metrics-map)
-      {:body "Done"})
+      {:status 201})
     (catch redis.clients.jedis.exceptions.JedisConnectionException e
       (do
         (error "Writing to Redis failed - not running?")
-        {:body "Connection error!"}))))
+        {:status 500}))))
 
 
 ;;; Routes
