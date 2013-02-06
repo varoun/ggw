@@ -5,7 +5,7 @@
         [clojure.tools.logging :only (info error)]
         [ggw.redis])
   (:require [compojure.route :as route]
-            [clj-redis.client :as redis]
+            [clj-redis.client :as red]
             [clojure.string :as string]))
 
 
@@ -13,7 +13,7 @@
 (defn write-metrics 
   [metrics-map]
   (doseq [[k v] metrics-map]
-    (redis/rpush db "metric" v)))
+    (red/rpush db "metric" v)))
 
 
 ;;; http handlers

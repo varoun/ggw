@@ -1,12 +1,12 @@
 (ns ggw.redis
-  (:require [clj-redis.client :as redis]))
+  (:require [clj-redis.client :as red]))
 
 ;;; redis connection parameters
-(def db (redis/init))
+(def db (red/init))
 
 ;;; redis health check
 (defn redis-up? []
   (try
-    (redis/ping db)
+    (red/ping db)
     (catch redis.clients.jedis.exceptions.JedisConnectionException e
       false)))
