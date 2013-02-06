@@ -29,3 +29,7 @@
         (log/info "Sending to graphite" metric)
         (enqueue ch metric)
         (recur (read-metric-from-db redis-db))))))
+
+(defmacro start-client [redis-db g-host g-port]
+  `(def client 
+     (future (get-and-send-metric ~redis-db ~g-host ~g-port))))
