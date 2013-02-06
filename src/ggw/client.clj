@@ -1,7 +1,8 @@
 (ns ggw.client
   (import [java.net Socket]
           [java.io PrintWriter])
-  (:require [clj-redis.client :as redis])
+  (:require [clj-redis.client :as redis]
+            [clojure.tools.logging :as log])
   (:use [lamina.core]
         [aleph.tcp] 
         [gloss.core]
@@ -25,5 +26,6 @@
   (let [ch (make-graphite-channel g-host g-port)]
     (loop [metric (read-metric-from-db redis-db)]
       (when (not (closed? ch))
+        (log/info "Sending to graphite" metric)
         (enqueue ch metric)
         (recur (read-metric-from-db redis-db))))))
