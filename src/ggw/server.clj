@@ -2,13 +2,11 @@
   (:use compojure.core
         [ring.adapter.jetty :only (run-jetty)]
         [ring.middleware.params :only (wrap-params)]
-        [clojure.tools.logging :only (info error)])
+        [clojure.tools.logging :only (info error)]
+        [ggw.redis])
   (:require [compojure.route :as route]
             [clj-redis.client :as redis]
             [clojure.string :as string]))
-
-;;; redis connection parameters
-(def db (redis/init))
 
 
 ;;; Writing the data to redis

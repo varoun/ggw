@@ -1,5 +1,6 @@
 (ns ggw.core
-  (:use [ggw.server]
+  (:use [ggw.redis]
+        [ggw.server]
         [ggw.client]
         [ring.adapter.jetty :only (run-jetty)]))
         

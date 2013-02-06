@@ -6,7 +6,8 @@
   (:use [lamina.core]
         [aleph.tcp] 
         [gloss.core]
-        [ggw.server]))
+        [ggw.server]
+        [ggw.redis]))
 
 (defn make-graphite-channel 
   [g-host g-port]
