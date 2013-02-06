@@ -43,4 +43,8 @@
 ;; #'ggw.server/server
 ;; ggw.server> 
 
+(defmacro start-server 
+  [port]
+  `(def server
+     (run-jetty #'app {:port ~port :join? false})))
  
