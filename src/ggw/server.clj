@@ -5,11 +5,14 @@
         [clojure.tools.logging :only (info error)]
         [ggw.redis]
         [ggw.conf]
-        [ggw.health])
+        [ggw.health]
+        [ggw.client])
   (:require [compojure.route :as route]
             [clj-redis.client :as red]
             [clojure.string :as string]))
 
+;; Atom to track the number of http requests
+(def http-in (atom 0))
 
 ;;; Writing the data to redis
 (defn write-metrics 
@@ -23,6 +26,7 @@
   [metrics-map]
   (try
     (do
+      (future (swap! http-in inc))
       (info metrics-map)
       (write-metrics metrics-map)
       {:status 201})
@@ -36,11 +40,16 @@
     {:status 200}
     {:status 500}))
 
+(defn app-metrics []
+  {:status 200
+   :body (format "http-in=%s|graphite-out=%s\n" 
+                 (deref http-in) (deref graphite-out))})
 
 ;;; Routes
 (defroutes app*
   (POST "/v1/metrics" {params :form-params} (metric-handler params))
-  (GET "/status" req (health-check)))
+  (GET "/status" req (health-check))
+  (GET "/appmetrics" req (app-metrics)))
 
 ;;; Ring middleware for handling form parameters
 (def app (wrap-params app*))

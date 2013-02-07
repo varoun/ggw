@@ -9,6 +9,10 @@
         [ggw.redis]
         [ggw.conf]))
 
+;; Atom to track the number of graphite requests
+(def graphite-out (atom 0))
+
+;; Talking to graphite
 (defn make-graphite-channel 
   [g-host g-port]
   (wait-for-result
@@ -27,6 +31,7 @@
   (let [ch (make-graphite-channel g-host g-port)]
     (loop [metric (read-metric-from-db redis-db)]
       (when (not (closed? ch))
+        (future (swap! graphite-out inc))
         (log/info "Sending to graphite" metric)
         (enqueue ch metric)
         (recur (read-metric-from-db redis-db))))))
