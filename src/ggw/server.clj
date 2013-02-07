@@ -31,10 +31,16 @@
         (error "Writing to Redis failed - not running?")
         {:status 500}))))
 
+(defn health-check []
+  (if (all-ok?)
+    {:status 200}
+    {:status 500}))
+
 
 ;;; Routes
 (defroutes app*
-  (POST "/v1/metrics" {params :form-params} (metric-handler params)))
+  (POST "/v1/metrics" {params :form-params} (metric-handler params))
+  (GET "/status" req (health-check)))
 
 ;;; Ring middleware for handling form parameters
 (def app (wrap-params app*))
