@@ -4,7 +4,8 @@
         [ring.middleware.params :only (wrap-params)]
         [clojure.tools.logging :only (info error)]
         [ggw.redis]
-        [ggw.conf])
+        [ggw.conf]
+        [ggw.health])
   (:require [compojure.route :as route]
             [clj-redis.client :as red]
             [clojure.string :as string]))
