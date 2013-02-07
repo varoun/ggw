@@ -34,3 +34,6 @@
 (defmacro start-client [redis-db g-host g-port]
   `(def client 
      (future (get-and-send-metric ~redis-db ~g-host ~g-port))))
+
+;;; start the client
+(start-client db graphite-host graphite-port)

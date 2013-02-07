@@ -1,13 +1,10 @@
 (ns ggw.core
-  (:use [ggw.redis]
-        [ggw.server]
+  (:use [ggw.conf]
+        [ggw.redis]
         [ggw.client]
-        [ring.adapter.jetty :only (run-jetty)]))
-        
-
+        [ggw.server]
+        [ggw.health]))
 
 
 (defn -main []
-  (start-server http-port)
-  (start-client db graphite-host graphite-port))
-  
+  (all-ok?))

@@ -48,3 +48,6 @@
   [port]
   `(def server
      (run-jetty #'app {:port ~port :join? false})))
+
+;; Start the server 
+(start-server http-port)
