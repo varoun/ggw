@@ -3,7 +3,8 @@
         [ring.adapter.jetty :only (run-jetty)]
         [ring.middleware.params :only (wrap-params)]
         [clojure.tools.logging :only (info error)]
-        [ggw.redis])
+        [ggw.redis]
+        [ggw.conf])
   (:require [compojure.route :as route]
             [clj-redis.client :as red]
             [clojure.string :as string]))
@@ -42,3 +43,7 @@
 ;; ggw.server> 
 
  
+(defmacro start-server 
+  [port]
+  `(def server
+     (run-jetty #'app {:port ~port :join? false})))
