@@ -23,8 +23,8 @@
 
 (defn read-metric-from-db 
   [red-pool red-connspec]
-  (redis/with-conn red-pool red-connspec
-    (second (redis/brpop "metric" 0))))
+  (second (redis/with-conn red-pool red-connspec
+            (redis/brpop "metric" 0))))
 
 
 (defn get-and-send-metric 
@@ -42,4 +42,4 @@
      (future (get-and-send-metric ~red-pool ~red-connspec ~g-host ~g-port))))
 
 ;;; start the client
-;(start-client db graphite-host graphite-port)
+;(start-client pool connspec graphite-host graphite-port)
