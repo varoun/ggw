@@ -15,11 +15,12 @@
 (def http-in (atom 0))
 
 ;;; Writing the data to redis
-;; (defmacro write-metrics 
-;;   [metrics-map]
-;;   `(red/with-conn pool connspec
-;;      (red/rpush "metric" ~@(map second metrics-map))))
-
+(defn write-metrics 
+  [metrics-map]
+  (red/with-conn pool connspec
+    (doseq [[k v] metrics-map]
+      (red/rpush "metric" v))))
+          
 
 ;;; http handlers
 (defn metric-handler 
@@ -28,8 +29,7 @@
     (do
       (future (swap! http-in inc))
       (info metrics-map)
-      `(red/with-conn pool connspec
-         (red/rpush "metric" ~@(map second metrics-map)))
+      (write-metrics metrics-map)
       {:status 201})
     (catch java.net.SocketException e
       (do
