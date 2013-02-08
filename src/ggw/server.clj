@@ -8,7 +8,7 @@
         [ggw.health]
         [ggw.client])
   (:require [compojure.route :as route]
-            [clj-redis.client :as red]
+            [taoensso.carmine :as red]
             [clojure.string :as string]))
 
 ;; Atom to track the number of http requests

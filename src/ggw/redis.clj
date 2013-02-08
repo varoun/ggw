@@ -1,6 +1,6 @@
 (ns ggw.redis
-  (:require [clj-redis.client :as red]))
+  (:require [taoensso.carmine :as red]))
 
 ;;; redis connection parameters
-(def db (red/init))
-
+(def pool (red/make-conn-pool))
+(def connspec (red/make-conn-spec))

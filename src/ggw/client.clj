@@ -1,7 +1,7 @@
 (ns ggw.client
   (import [java.net Socket]
           [java.io PrintWriter])
-  (:require [clj-redis.client :as redis]
+  (:require [taoensso.carmine :as redis]
             [clojure.tools.logging :as log])
   (:use [lamina.core]
         [aleph.tcp] 
@@ -22,23 +22,24 @@
 
 
 (defn read-metric-from-db 
-  [redis-db]
-  (second (redis/brpop redis-db ["metric"] 0)))
+  [red-pool red-connspec]
+  (redis/with-conn red-pool red-connspec
+    (second (redis/brpop "metric" 0))))
 
 
 (defn get-and-send-metric 
-  [redis-db g-host g-port]
+  [red-pool red-connspec g-host g-port]
   (let [ch (make-graphite-channel g-host g-port)]
-    (loop [metric (read-metric-from-db redis-db)]
+    (loop [metric (read-metric-from-db red-pool red-connspec)]
       (when (not (closed? ch))
         (future (swap! graphite-out inc))
         (log/info "Sending to graphite" metric)
         (enqueue ch metric)
-        (recur (read-metric-from-db redis-db))))))
+        (recur (read-metric-from-db red-pool red-connspec))))))
 
-(defmacro start-client [redis-db g-host g-port]
+(defmacro start-client [red-pool red-connspec g-host g-port]
   `(def client 
-     (future (get-and-send-metric ~redis-db ~g-host ~g-port))))
+     (future (get-and-send-metric ~red-pool ~red-connspec ~g-host ~g-port))))
 
 ;;; start the client
-(start-client db graphite-host graphite-port)
+;(start-client db graphite-host graphite-port)
