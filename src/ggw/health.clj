@@ -1,5 +1,5 @@
 (ns ggw.health
-  (:require [clj-redis.client :as red])
+  (:require [taoensso.carmine :as red])
   (:use [ggw.client]
         [ggw.redis]))
 
@@ -13,8 +13,9 @@
 ;;; redis health check
 (defn redis-up? []
   (try
-    (red/ping db)
-    (catch redis.clients.jedis.exceptions.JedisConnectionException e
+    (red/with-conn pool connspec
+      (red/ping))
+    (catch java.net.SocketException e
       false)))
 
 (defn all-ok? []

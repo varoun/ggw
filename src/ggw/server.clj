@@ -15,10 +15,10 @@
 (def http-in (atom 0))
 
 ;;; Writing the data to redis
-(defn write-metrics 
-  [metrics-map]
-  (doseq [[k v] metrics-map]
-    (red/rpush db "metric" v)))
+;; (defmacro write-metrics 
+;;   [metrics-map]
+;;   `(red/with-conn pool connspec
+;;      (red/rpush "metric" ~@(map second metrics-map))))
 
 
 ;;; http handlers
@@ -28,9 +28,10 @@
     (do
       (future (swap! http-in inc))
       (info metrics-map)
-      (write-metrics metrics-map)
+      `(red/with-conn pool connspec
+         (red/rpush "metric" ~@(map second metrics-map)))
       {:status 201})
-    (catch redis.clients.jedis.exceptions.JedisConnectionException e
+    (catch java.net.SocketException e
       (do
         (error "Writing to Redis failed - not running?")
         {:status 500}))))
@@ -65,4 +66,4 @@
      (run-jetty #'app {:port ~port :join? false})))
 
 ;; Start the server 
-(start-server http-port)
+;(start-server http-port)
