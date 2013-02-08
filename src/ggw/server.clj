@@ -18,8 +18,7 @@
 (defn write-metrics 
   [metrics-map]
   (red/with-conn pool connspec
-    (doseq [[k v] metrics-map]
-      (red/rpush "metric" v))))
+    (red/rpush "metric" metrics-map)))
           
 
 ;;; http handlers

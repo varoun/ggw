@@ -2,7 +2,8 @@
   (import [java.net Socket]
           [java.io PrintWriter])
   (:require [taoensso.carmine :as redis]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.string :as string])
   (:use [lamina.core]
         [aleph.tcp] 
         [gloss.core]
@@ -23,8 +24,10 @@
 
 (defn read-metric-from-db 
   [red-pool red-connspec]
-  (second (redis/with-conn red-pool red-connspec
-            (redis/brpop "metric" 0))))
+  (string/join "\n" 
+               (map second
+                    (second (redis/with-conn red-pool red-connspec
+                              (redis/brpop "metric" 0))))))
 
 
 (defn get-and-send-metric 
