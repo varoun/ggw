@@ -4,22 +4,25 @@
   (:require [taoensso.carmine :as redis]
             [clojure.tools.logging :as log]
             [clojure.string :as string])
-  (:use [lamina.core]
-        [aleph.tcp] 
-        [gloss.core]
-        [ggw.redis]
+  (:use [ggw.redis]
         [ggw.conf]))
 
 ;; Atom to track the number of graphite requests
 (def graphite-out (atom 0))
 
 ;; Talking to graphite
-(defn make-graphite-channel 
-  [g-host g-port]
-  (wait-for-result
-   (tcp-client {:host g-host 
-                :port g-port
-                :frame (string :utf-8 :delimiters ["\n"])})))
+(defn send-metric-to-graphite 
+  [host port metric-string]
+  (try
+    (with-open [socket (Socket. host port)
+                out-str (.getOutputStream socket)]
+      (binding [*out* (PrintWriter. out-str)]
+        (println metric-string)))
+    (catch java.net.ConnectException e
+      (Thread/sleep 5000)
+      (send-metric-to-graphite host port metric-string))))
+             
+    
 
 
 (defn read-metric-from-db 
@@ -32,13 +35,11 @@
 
 (defn get-and-send-metric 
   [red-pool red-connspec g-host g-port]
-  (let [ch (make-graphite-channel g-host g-port)]
-    (loop [metric (read-metric-from-db red-pool red-connspec)]
-      (when (not (closed? ch))
-        (future (swap! graphite-out inc))
-        (log/info "Sending to graphite" metric)
-        (enqueue ch metric)
-        (recur (read-metric-from-db red-pool red-connspec))))))
+  (loop [metric (read-metric-from-db red-pool red-connspec)]
+    (future (swap! graphite-out inc))
+    (log/info "Sending to graphite" metric)
+    (send-metric-to-graphite g-host g-port metric)
+    (recur (read-metric-from-db red-pool red-connspec))))
 
 (defmacro start-client [red-pool red-connspec g-host g-port]
   `(def client 
